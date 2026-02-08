@@ -1,0 +1,49 @@
+name: Scraper emergencias CGBVP
+
+on:
+  schedule:
+    # Ejecutar cada 5 minutos
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Permite lanzarlo manualmente desde la UI
+    inputs: {}
+
+permissions:
+  contents: write
+
+jobs:
+  ejecutar-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Requerimientos.txt
+
+      - name: Ejecutar scraper
+        run: |
+          python principal.py
+
+      - name: Configurar git para el commit automático
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit y push de cambios (si los hay)
+        run: |
+          if git status --porcelain | grep -q "salida/emergencias_historico.csv"; then
+            echo "Hay cambios en el histórico, haciendo commit..."
+            git add salida/emergencias_historico.csv
+            git commit -m "Actualización emergencias $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "No hay cambios en emergencias_historico.csv"
+          fi
