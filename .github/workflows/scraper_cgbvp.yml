@@ -23,6 +23,13 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Mostrar fecha y hora de la ejecución
+        run: |
+          echo "Fecha/hora local del runner:"
+          date
+          echo "Fecha/hora UTC:"
+          date -u
+
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
@@ -47,3 +54,4 @@ jobs:
           else
             echo "No hay cambios en emergencias_historico.csv"
           fi
+
